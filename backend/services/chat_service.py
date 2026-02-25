@@ -84,7 +84,13 @@ def generate_chat_response(payload: ChatMessageRequest) -> ChatMessageResponse:
                 else:
                     follow_ups = ["Show me more details.", "What are the next steps?", "Is there a summary available?"]
         except Exception as e:
-            logger.error(f"[chat_service] Groq call failed: {e}")
+            print("GROQ ERROR:", str(e))
+            return ChatMessageResponse(
+                reply=f"GROQ ERROR: {str(e)}",
+                suggested_actions=[],
+                follow_up_questions=[],
+                language=language
+            )
 
     # 4. Store message
     if user_id:
