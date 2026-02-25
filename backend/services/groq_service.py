@@ -11,17 +11,22 @@ import json
 import random
 from typing import Any, Dict
 
+import os
 from core.config import GROQ_API_KEY
 
 # ─── Groq client (singleton) ──────────────────────────────────────────────────
 _client = None
-if GROQ_API_KEY:
+_key = os.getenv("GROQ_API_KEY") or GROQ_API_KEY
+
+if _key:
     try:
         from groq import Groq
-        _client = Groq(api_key=GROQ_API_KEY)
+        _client = Groq(api_key=_key)
         print("[groq_service] Groq client initialised OK")
     except Exception as e:
-        print(f"[groq_service] Groq client init failed: {e}")
+        import traceback
+        print(f"[groq_service] Groq client init failed: {str(e)}")
+        print(traceback.format_exc())
 
 
 # ─── Static fallback question pool ────────────────────────────────────────────

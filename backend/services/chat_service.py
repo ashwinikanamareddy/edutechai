@@ -66,6 +66,7 @@ def generate_chat_response(payload: ChatMessageRequest) -> ChatMessageResponse:
     
     if groq_client:
         try:
+            print(f"[chat_service] Calling Groq with prompt length: {len(full_prompt)}")
             completion = groq_client.chat.completions.create(
                 model="llama-3.1-8b-instant",
                 messages=[
@@ -75,23 +76,29 @@ def generate_chat_response(payload: ChatMessageRequest) -> ChatMessageResponse:
                 temperature=0.7,
                 max_tokens=1000,
             )
-            reply_text = completion.choices[0].message.content
+            if completion and completion.choices:
+                reply_text = completion.choices[0].message.content
+                
+                # Extract follow-up questions from response if AI included them
+                lines = [l.strip() for l in reply_text.split("\n") if l.strip()]
+                potential_questions = [l for l in lines[-5:] if "?" in l and (l[0].isdigit() or l.startswith("-") or l.startswith("?"))]
+                
+                if potential_questions:
+                    follow_ups = [q.lstrip("0123456789.-? ").strip() for q in potential_questions[:3]]
             
-            # Extract follow-up questions from response if AI included them
-            # Heuristic: look for lines starting with numbers or bullets at the end
-            lines = [l.strip() for l in reply_text.split("\n") if l.strip()]
-            potential_questions = [l for l in lines[-5:] if "?" in l and (l[0].isdigit() or l.startswith("-") or l.startswith("?"))]
-            
-            if potential_questions:
-                follow_ups = [q.lstrip("0123456789.-? ").strip() for q in potential_questions[:3]]
-            else:
+            if not follow_ups:
                 # Default follow-ups if AI didn't provide them clearly
                 if role == "student":
                     follow_ups = ["Can you explain that more simply?", "Give me another example.", "Is this important for my exam?"]
                 else:
                     follow_ups = ["Show me more details.", "What are the next steps?", "Is there a summary available?"]
+                    
         except Exception as e:
-            print(f"[chat_service] Groq call failed: {e}")
+            import traceback
+            print(f"[chat_service] Groq call failed: {str(e)}")
+            print(traceback.format_exc())
+    else:
+        print("[chat_service] Groq client not initialized - using fallback")
 
     # 5. Store message in background (Try/Catch to not block response)
     if user_id:
@@ -104,8 +111,8 @@ def generate_chat_response(payload: ChatMessageRequest) -> ChatMessageResponse:
                 "language": language,
                 "context_page": context_page
             }).execute()
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[chat_service] Failed to log message to DB: {str(e)}")
 
     return ChatMessageResponse(
         reply=reply_text,

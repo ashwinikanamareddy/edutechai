@@ -17,8 +17,19 @@ async def chat_message(payload: ChatMessageRequest):
     """
     Send a message to the AI assistant.
     """
-    # Note: Authentication can be added here using get_current_user
-    return generate_chat_response(payload)
+    try:
+        # Note: Authentication can be added here using get_current_user
+        return generate_chat_response(payload)
+    except Exception as e:
+        import traceback
+        print(f"[chat_routes] CRITICAL ERROR in chat_message: {str(e)}")
+        print(traceback.format_exc())
+        return ChatMessageResponse(
+            reply="I'm sorry, I encountered an unexpected error. Please try again later.",
+            suggested_actions=["Check Connection"],
+            follow_up_questions=["Retry request"],
+            language=payload.language
+        )
 
 from services.media_service import extract_text_from_pdf, extract_text_from_image
 from services.rag_service import store_document

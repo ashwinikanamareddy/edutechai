@@ -6,13 +6,16 @@ import numpy as np
 
 try:
     from sentence_transformers import SentenceTransformer
-    # Using a small, fast model (all-MiniLM-L6-v2) - 384 dimensions
-    # Note: Implementation plan mentioned 768, but 384 is much faster for demo.
-    # We will adjust to match the requested 768 if needed, but MiniLM is standard.
-    _model = SentenceTransformer('all-MiniLM-L6-v2')
-    print("[embedding_service] Local SentenceTransformer loaded")
+    import os
+    # Allow model name override via env var
+    _MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
+    print(f"[embedding_service] Loading local model: {_MODEL_NAME}")
+    _model = SentenceTransformer(_MODEL_NAME)
+    print("[embedding_service] Local SentenceTransformer loaded OK")
 except Exception as e:
-    print(f"[embedding_service] Could not load local model: {e}")
+    import traceback
+    print(f"[embedding_service] Could not load local model: {str(e)}")
+    print(traceback.format_exc())
     _model = None
 
 def generate_embedding(text: str) -> list[float]:
