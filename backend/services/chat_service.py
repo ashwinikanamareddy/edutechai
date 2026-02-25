@@ -69,7 +69,7 @@ def generate_chat_response(payload: ChatMessageRequest) -> ChatMessageResponse:
     if groq_client:
         try:
             completion = groq_client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model="llama3-8b-8192",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": full_prompt},
