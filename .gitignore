@@ -1,0 +1,22 @@
+# node.js
+node_modules/
+dist/
+.next/
+.env*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env/
+backend/venv/
+backend/.env
+
+# misc
+.DS_Store
+.vercel
+tsconfig.tsbuildinfo
