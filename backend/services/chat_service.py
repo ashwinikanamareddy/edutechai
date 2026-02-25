@@ -21,9 +21,8 @@ def generate_chat_response(payload: ChatMessageRequest) -> ChatMessageResponse:
     context_page = payload.context
     role = payload.role
 
-    # 1. Retrieve RAG context
-    rag_docs = search_similar_documents(message, user_id=str(user_id) if user_id else None)
-    rag_context = "\n".join(rag_docs) if rag_docs else "No relevant documents found."
+    # 1. Retrieve RAG context (DISABLED temporarily for production lightweight mode)
+    rag_context = ""
 
     # 2. Retrieve last 3 messages for history (simplified for demo)
     history_context = ""
