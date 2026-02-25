@@ -57,6 +57,14 @@ export function GlobalChatProvider({ children }: { children: ReactNode }) {
         setIsLoading(true)
 
         try {
+            console.log("Chat Request Payload:", {
+                message: text,
+                language,
+                user_id: user?.id,
+                role: user?.role || "student",
+                context: pathname,
+            })
+
             const resp = await api.post("/chat/message", {
                 message: text,
                 language,
@@ -64,6 +72,8 @@ export function GlobalChatProvider({ children }: { children: ReactNode }) {
                 role: user?.role || "student",
                 context: pathname,
             })
+
+            console.log("Chat Response Object:", resp.data)
 
             const aiMsg: Message = {
                 id: Math.random().toString(36).substr(2, 9),

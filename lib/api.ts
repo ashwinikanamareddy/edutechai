@@ -26,7 +26,8 @@ import type {
 // Centralized Axios instance – single source of truth
 // ============================================================
 
-const BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1").replace(/\/+$/, "")
+const rawBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "")
+const BASE_URL = rawBaseUrl.includes("/api/v1") ? rawBaseUrl : `${rawBaseUrl}/api/v1`
 
 function readStoredToken() {
   if (typeof window === "undefined") return null
@@ -42,6 +43,7 @@ function createClient(): AxiosInstance {
 
   // Attach token from persistent storage on every request
   client.interceptors.request.use((config) => {
+    console.log(`[API REQUEST] Calling: ${BASE_URL}${config.url}`, config.data)
     if (typeof window !== "undefined") {
       const token = readStoredToken()
       if (token) {
@@ -53,8 +55,12 @@ function createClient(): AxiosInstance {
 
   // Normalize API errors
   client.interceptors.response.use(
-    (res) => res,
+    (res) => {
+      console.log(`[API RESPONSE] Success from ${res.config.url}:`, res.data)
+      return res
+    },
     (error: AxiosError<{ detail?: string; error?: string | null }>) => {
+      console.error(`[API ERROR] Failure from ${error.config?.url}:`, error.response?.data || error.message)
       const isNetworkError = !error.response
       const rawDetail = error.response?.data?.error ?? error.response?.data?.detail
       const detail = typeof rawDetail === "object" ? JSON.stringify(rawDetail) : rawDetail
