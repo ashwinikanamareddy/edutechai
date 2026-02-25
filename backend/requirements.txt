@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 pydantic
-pydantic-settings
 groq
 twilio
 supabase

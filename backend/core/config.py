@@ -35,7 +35,10 @@ TWILIO_PHONE_NUMBER: str = _get("TWILIO_PHONE_NUMBER")
 TWILIO_MESSAGING_SERVICE_SID: str = _get("TWILIO_MESSAGING_SERVICE_SID")
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
-ALLOWED_ORIGINS: list[str] = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-]
+_origins = _get("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001")
+ALLOWED_ORIGINS: list[str] = [o.strip() for o in _origins.split(",") if o.strip()]
+
+# Add specific Frontend URL if provided
+FRONTEND_URL: str = _get("FRONTEND_URL")
+if FRONTEND_URL and FRONTEND_URL not in ALLOWED_ORIGINS:
+    ALLOWED_ORIGINS.append(FRONTEND_URL)
