@@ -6,7 +6,6 @@ import {
     X,
     Mic,
     Volume2,
-    Paperclip,
     Trash2,
     Loader2,
     MoreHorizontal,
@@ -39,13 +38,11 @@ export function ChatPanel() {
         currentLanguage,
         setCurrentLanguage,
         followUpQuestions,
-        suggestedActions,
-        uploadFile
+        suggestedActions
     } = useGlobalChat()
 
     const [inputText, setInputText] = useState("")
     const [isListening, setIsListening] = useState(false)
-    const fileInputRef = useRef<HTMLInputElement>(null)
     const scrollRef = useRef<HTMLDivElement>(null)
 
     // Auto-scroll to bottom
@@ -69,13 +66,6 @@ export function ChatPanel() {
         }
     }
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (file) {
-            await uploadFile(file)
-            if (fileInputRef.current) fileInputRef.current.value = ""
-        }
-    }
 
     const startListening = () => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
@@ -155,6 +145,7 @@ export function ChatPanel() {
                             <SelectItem value="Hindi">Hindi</SelectItem>
                             <SelectItem value="Telugu">Telugu</SelectItem>
                         </SelectContent>
+                    </Select>
                 </div>
             </div>
 
