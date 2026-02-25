@@ -75,12 +75,12 @@ export function GlobalChatProvider({ children }: { children: ReactNode }) {
             setMessages((prev) => [...prev, aiMsg])
             setFollowUpQuestions(resp.data.follow_up_questions || [])
             setSuggestedActions(resp.data.suggested_actions || [])
-        } catch (error) {
+        } catch (error: any) {
             console.error("Chat error:", error)
             const errorMsg: Message = {
-                id: "error",
+                id: Math.random().toString(36).substr(2, 9),
                 role: "ai",
-                content: "I'm having trouble connecting to my brain. Please ensure your internet is active and the backend is running.",
+                content: `⚠️ Error: ${error.message || "Request failed"}. (Check if your backend is running and accessible at the expected URL)`,
                 timestamp: new Date(),
                 language,
             }

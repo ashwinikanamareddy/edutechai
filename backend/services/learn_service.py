@@ -31,10 +31,10 @@ def generate_full_lesson_data(subject: str, topic: str, language: str) -> Dict[s
         }
 
     system_prompt = (
-        "You are an expert multilingual educational AI tutor.\n"
+        "You are 'Vidya Saathi', an expert multilingual educational AI tutor.\n"
         f"Language: {language}\n"
         "Rules:\n"
-        "- Generate a comprehensive but easy-to-understand lesson for a Grade 8 student.\n"
+        "- Generate a comprehensive, deep, and easy-to-understand lesson for a Grade 8 student.\n"
         "- Respond ENTIRELY in the selected language.\n"
         "- Use proper HTML tags (h3, p, strong, code) for explanation_html.\n"
         "- Return ONLY valid JSON."
@@ -91,7 +91,7 @@ def generate_full_lesson_data(subject: str, topic: str, language: str) -> Dict[s
     except Exception as e:
         logger.error(f"Error generating full lesson: {e}")
         return {
-            "lesson": {"subject": subject, "topic": topic, "grade": 8, "explanation_html": f"Error: {e}", "steps": [], "real_life_example": "", "progress_percent": 0},
+            "lesson": {"subject": subject, "topic": topic, "grade": 8, "explanation_html": "Error generating content.", "steps": [], "real_life_example": "", "progress_percent": 0},
             "behavior": {"hesitation": "N/A", "retry_count": 0, "hint_usage": 0, "language_switches": 0, "focus": "None"},
             "confusion_score": 0,
             "quick_check": {"question": "Error", "options": ["-", "-", "-", "-"], "correct_index": 0, "explanation": ""}
@@ -105,11 +105,13 @@ def generate_simplified_explanation(topic: str, language: str) -> Dict[str, str]
         return {"explanation_html": f"<p>AI Simplified: {topic} is about solving things step-by-step.</p>"}
 
     system_prompt = (
-        "You are a helpful educational AI.\n"
+        "You are 'Vidya Saathi', an expert at explaining complex concepts to children (ELI5).\n"
         f"Language: {language}\n"
-        "Explain the topic in EXTREMELY simple terms (ELI5 style) or with a vivid real-life example.\n"
-        "Respond ENTIRELY in the selected language.\n"
-        "Use HTML tags like p, strong."
+        "Rules:\n"
+        "- Break down the concept into tiny, understandable pieces.\n"
+        "- Use a very vivid, relatable real-life analogy.\n"
+        "- Avoid all complex jargon.\n"
+        "- Respond ENTIRELY in the selected language using clean HTML (p, strong) and emojis where helpful.\n"
     )
 
     try:
@@ -120,7 +122,7 @@ def generate_simplified_explanation(topic: str, language: str) -> Dict[str, str]
                 {"role": "user", "content": f"Simplify this topic or provide a clear example: {topic}"},
             ],
             temperature=0.8,
-            max_tokens=400
+            max_tokens=800
         )
         content = completion.choices[0].message.content
         return {"explanation_html": content}
@@ -135,16 +137,16 @@ def generate_topic_explanation(topic: str, language: str) -> LearnTopicResponse:
     if not groq_client:
         return LearnTopicResponse(
             explanation="Groq AI is not configured.",
-            example="Social media platforms for communication.",
-            key_points=["Connects people", "Content sharing", "Real-time updates", "Digital footprint", "Privacy settings"],
-            summary="Groq client is unavailable."
+            example="Example content.",
+            key_points=["Point 1"],
+            summary="Client unavailable."
         )
 
     system_prompt = (
-        "You are a multilingual educational tutor.\n"
+        "You are 'Vidya Saathi', a multilingual educational tutor.\n"
         f"Language: {language}\n"
         "Rules:\n"
-        "- Explain clearly and supporting school students.\n"
+        "- Explain clearly with academic depth.\n"
         "- Respond ENTIRELY in the selected language.\n"
         "- Return ONLY valid JSON."
     )
@@ -153,10 +155,10 @@ def generate_topic_explanation(topic: str, language: str) -> LearnTopicResponse:
         f"Explain the topic: {topic}\n\n"
         "Return JSON with exactly these keys:\n"
         "{\n"
-        '  "explanation": "Simple explanation of the concept...",\n'
-        '  "example": "A real-life example...",\n'
+        '  "explanation": "Deep explanation...",\n'
+        '  "example": "Relatable example...",\n'
         '  "key_points": ["point 1", "point 2", "point 3", "point 4", "point 5"],\n'
-        '  "summary": "Short 1-sentence summary"\n'
+        '  "summary": "1-sentence summary"\n'
         "}"
     )
 
@@ -174,43 +176,29 @@ def generate_topic_explanation(topic: str, language: str) -> LearnTopicResponse:
         return LearnTopicResponse(**data)
     except Exception as e:
         logger.error(f"Error generating topic explanation: {e}")
-        return LearnTopicResponse(
-            explanation=f"Sorry, I couldn't generate an explanation for '{topic}' right now.",
-            example="Please try again later.",
-            key_points=["Error occurred during generation"],
-            summary="Connection error."
-        )
+        return LearnTopicResponse(explanation="Error.", example="", key_points=[], summary="")
 
 def generate_storyboard(topic: str, language: str) -> StoryboardResponse:
     """
     Generate a 5-scene storyboard for an animated explanation.
     """
     if not groq_client:
-        return StoryboardResponse(
-            scene_1="Groq not configured.",
-            scene_2="-", scene_3="-", scene_4="-", scene_5="-"
-        )
+        return StoryboardResponse(scene_1="Groq not configured.", scene_2="-", scene_3="-", scene_4="-", scene_5="-")
 
     system_prompt = (
         "You are an educational animator.\n"
         f"Language: {language}\n"
-        "Convert the explanation into 5 short animated teaching scenes.\n"
+        "Convert the concept into 5 visual animated teaching scenes.\n"
         "Respond ENTIRELY in the selected language.\n"
         "Return ONLY valid JSON."
     )
 
-    user_prompt = (
-        f"Topic: {topic}\n\n"
-        "Generate 5 scenes for an animation.\n"
-        "Return JSON with keys: scene_1, scene_2, scene_3, scene_4, scene_5"
-    )
-
     try:
         completion = groq_client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
+                {"role": "user", "content": f"Generate scenes for: {topic}"},
             ],
             temperature=0.7,
             response_format={"type": "json_object"}
@@ -219,7 +207,4 @@ def generate_storyboard(topic: str, language: str) -> StoryboardResponse:
         return StoryboardResponse(**data)
     except Exception as e:
         logger.error(f"Error generating storyboard: {e}")
-        return StoryboardResponse(
-            scene_1="Failed to generate storyboard.",
-            scene_2="-", scene_3="-", scene_4="-", scene_5="-"
-        )
+        return StoryboardResponse(scene_1="Error.", scene_2="-", scene_3="-", scene_4="-", scene_5="-")

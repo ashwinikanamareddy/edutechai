@@ -98,11 +98,14 @@ export default function LearningPage() {
     const langs = ["English", "Hindi", "Telugu"]
     const nextIdx = (langs.indexOf(selectedLanguage) + 1) % langs.length
     const nextLang = langs[nextIdx]
+
+    // Clear states when language changes to force fresh AI content
+    setSimplifiedHtml(null)
+    setShowFeedback(false)
+    setSelectedAnswer(null)
+
     setSelectedLanguage(nextLang)
     behaviorMutation.mutate({ event_type: "language_switch" }).catch(() => { })
-
-    // In a real app we'd fetch the translated lesson here. 
-    // For demo we'll just show an info message in the UI.
   }
 
   async function handleHint() {
