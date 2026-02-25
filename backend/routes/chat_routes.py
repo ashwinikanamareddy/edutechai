@@ -10,7 +10,7 @@ from models.chat_models import ChatMessageRequest, ChatMessageResponse, SpeechTo
 from core.security import get_required_auth_user as get_current_user
 
 
-router = APIRouter(prefix="/api/v1/chat", tags=["AI Chat"])
+router = APIRouter(tags=["AI Chat"])
 
 @router.post("/message", response_model=ChatMessageResponse)
 async def chat_message(payload: ChatMessageRequest):

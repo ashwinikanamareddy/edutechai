@@ -30,22 +30,22 @@ router = APIRouter(tags=["quiz"])
 
 # ─── Quiz ─────────────────────────────────────────────────────────────────────
 
-@router.post("/api/v1/quiz/start")
+@router.post("/start")
 def quiz_start(payload: QuizStartRequest):
     return ok(start_quiz(payload))
 
 
-@router.post("/api/v1/quiz/submit-answer")
+@router.post("/submit-answer")
 def quiz_submit_answer(payload: QuizAnswerRequest):
     return ok(submit_answer(payload))
 
 
-@router.get("/api/v1/quiz/summary")
+@router.get("/summary")
 def quiz_summary(session_id: str = "quiz-demo-session"):
     return ok(get_quiz_summary(session_id))
 
 
-@router.get("/api/v1/quiz/next-question")
+@router.get("/next-question")
 def quiz_next_question(session_id: str):
     """Return the pre-generated next question for a session (used as fallback by frontend)."""
     from services.quiz_service import QUIZ_SESSION_STORE
@@ -58,14 +58,14 @@ def quiz_next_question(session_id: str):
     return ok({"next_question": nq, "current_difficulty": session.get("current_difficulty", "easy")})
 
 
-@router.post("/api/v1/quiz/submit")
+@router.post("/submit")
 def submit_quiz(payload: QuizSubmitRequest):
     return ok(submit_quiz_full(payload.model_dump()))
 
 # ─── Webhook: trigger automation separately ────────────────────────────────────
 
 
-@router.post("/api/v1/quiz/webhook/automate")
+@router.post("/webhook/automate")
 def webhook_automate(payload: WebhookAutomateRequest):
     """
     Manually trigger the post-quiz automation pipeline (Groq + SMS)
@@ -86,7 +86,7 @@ def webhook_automate(payload: WebhookAutomateRequest):
 
 # ─── Learning ─────────────────────────────────────────────────────────────────
 
-@router.get("/api/v1/learning/lesson")
+@router.get("/lesson")
 def learning_lesson(subject: str = "Mathematics", topic: str = "Linear Equations", language: str = "English"):
     """
     Fetch a full lesson (explanation + behavior tracking + quick check).
@@ -96,13 +96,13 @@ def learning_lesson(subject: str = "Mathematics", topic: str = "Linear Equations
     return ok(generate_full_lesson_data(subject, topic, language))
 
 
-@router.post("/api/v1/learning/track-behavior")
+@router.post("/track-behavior")
 def learning_track_behavior(payload: TrackBehaviorRequest):
     delta = 8 if payload.event_type in {"retry", "hint"} else 5 if payload.event_type in {"language_switch", "time_hesitation"} else 2
     return ok({"confusion_score": min(100, 28 + delta)})
 
 
-@router.post("/api/v1/learning/simplify")
+@router.post("/simplify")
 def learning_simplify(payload: SimplifyRequest):
     """
     Simplify the explanation or provide an example for a topic using AI.
@@ -111,7 +111,7 @@ def learning_simplify(payload: SimplifyRequest):
     return ok(generate_simplified_explanation(payload.topic, payload.language))
 
 
-@router.post("/api/v1/learning/answer")
+@router.post("/answer")
 def learning_answer(payload: LearningAnswerRequest):
     correct = payload.selected == 1
     return ok({
@@ -123,7 +123,7 @@ def learning_answer(payload: LearningAnswerRequest):
 
 # ─── Remedial ─────────────────────────────────────────────────────────────────
 
-@router.get("/api/v1/remedial/plan")
+@router.get("/plan")
 def remedial_plan():
     return ok({
         "trigger_reason": "Intervention triggered due to high confusion in Algebra.",
@@ -161,14 +161,14 @@ def remedial_plan():
     })
 
 
-@router.post("/api/v1/remedial/continue")
+@router.post("/continue")
 def remedial_continue(payload: RemedialContinueRequest):
     return ok({"step": payload.step, "message": "Recovery step advanced (demo stub)"})
 
 
 # ─── AI ───────────────────────────────────────────────────────────────────────
 
-@router.post("/api/v1/ai/generate-remedial")
+@router.post("/generate-remedial")
 def generate_remedial_content(payload: GenerateRemedialRequest):
     student_id = payload.student_id
     topic = payload.topic
@@ -230,7 +230,7 @@ def generate_remedial_content(payload: GenerateRemedialRequest):
 
 # ─── SMS ──────────────────────────────────────────────────────────────────────
 
-@router.post("/api/v1/sms/send")
+@router.post("/send")
 def sms_send(payload: SMSSendRequest):
     incoming = payload.message.strip().upper()
     if incoming in {"MATH FRACTIONS", "MATH ALGEBRA"}:
@@ -247,7 +247,7 @@ def sms_send(payload: SMSSendRequest):
 
 # ─── Demo ─────────────────────────────────────────────────────────────────────
 
-@router.post("/api/v1/demo/simulate-risk")
+@router.post("/simulate-risk")
 def simulate_risk_student(payload: SimulateRiskRequest):
     attempts = [
         {"correct_answers": 8, "total_questions": 10, "hesitation_time": 5, "retries": 0, "hints_used": 0, "instability_score": 5, "engagement_score": 80},

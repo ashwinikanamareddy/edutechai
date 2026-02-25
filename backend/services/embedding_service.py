@@ -4,28 +4,37 @@ Uses sentence-transformers locally if available, or a fallback for demo purposes
 """
 import numpy as np
 
-try:
-    from sentence_transformers import SentenceTransformer
-    import os
-    # Allow model name override via env var
-    _MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
-    print(f"[embedding_service] Loading local model: {_MODEL_NAME}")
-    _model = SentenceTransformer(_MODEL_NAME)
-    print("[embedding_service] Local SentenceTransformer loaded OK")
-except Exception as e:
-    import traceback
-    print(f"[embedding_service] Could not load local model: {str(e)}")
-    print(traceback.format_exc())
-    _model = None
+_model = None
+
+def load_model():
+    global _model
+    if _model is not None:
+        return _model
+    
+    try:
+        from sentence_transformers import SentenceTransformer
+        import os
+        # Allow model name override via env var
+        _MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
+        print(f"[embedding_service] Loading local model: {_MODEL_NAME}")
+        _model = SentenceTransformer(_MODEL_NAME)
+        print("[embedding_service] Local SentenceTransformer loaded OK")
+        return _model
+    except Exception as e:
+        import traceback
+        print(f"[embedding_service] Could not load local model: {str(e)}")
+        print(traceback.format_exc())
+        return None
 
 def generate_embedding(text: str) -> list[float]:
     """
     Generate a vector embedding for the given text.
     Returns a list of floats.
     """
-    if _model:
+    model = load_model()
+    if model:
         try:
-            embedding = _model.encode(text)
+            embedding = model.encode(text)
             return embedding.tolist()
         except Exception as e:
             print(f"[embedding_service] Encoding failed: {e}")

@@ -10,7 +10,7 @@ from core.security import get_required_auth_user as get_current_user
 from models.learn_models import LearnTopicRequest, LearnTopicResponse, TTSRequest, StoryboardResponse
 from services.learn_service import generate_topic_explanation, generate_storyboard
 
-router = APIRouter(prefix="/api/v1/learn", tags=["Learning"])
+router = APIRouter(tags=["Learning"])
 
 @router.post("/topic", response_model=LearnTopicResponse)
 async def learn_topic(payload: LearnTopicRequest, current_user=Depends(get_current_user)):

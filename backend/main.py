@@ -31,9 +31,11 @@ app = FastAPI(
 )
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
+# For production/demo robustness, we allow all origins. 
+# In a strict production app, you'd want to restrict this to ALLOWED_ORIGINS.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
+    allow_origins=["*"],  # Permissive for demo accessibility
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,12 +56,14 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 # ─── Routers ──────────────────────────────────────────────────────────────────
-app.include_router(auth_router)
-app.include_router(quiz_router)
-app.include_router(analytics_router)
-app.include_router(chat_router)
-app.include_router(learn_router)
-app.include_router(sms_test_router)
+# Handle both /api/v1/path and /path for frontend compatibility
+for prefix in ["/api/v1", ""]:
+    app.include_router(auth_router, prefix=f"{prefix}/auth")
+    app.include_router(quiz_router, prefix=f"{prefix}/quiz")
+    app.include_router(analytics_router, prefix=f"{prefix}/analytics")
+    app.include_router(chat_router, prefix=f"{prefix}/chat")
+    app.include_router(learn_router, prefix=f"{prefix}/learn")
+    app.include_router(sms_test_router, prefix=f"{prefix}/sms")
 
 # ─── Core endpoints ───────────────────────────────────────────────────────────
 @app.get("/")

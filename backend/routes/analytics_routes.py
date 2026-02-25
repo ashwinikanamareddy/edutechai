@@ -15,7 +15,7 @@ router = APIRouter(tags=["analytics"])
 
 # ─── Static Dashboards ─────────────────────────────────────────────────────────
 
-@router.get("/api/v1/student/dashboard")
+@router.get("/student/dashboard")
 def student_dashboard():
     return ok({
         "mastery_score": 75,
@@ -56,7 +56,7 @@ def student_dashboard():
     })
 
 
-@router.get("/api/v1/teacher/dashboard")
+@router.get("/teacher/dashboard")
 def teacher_dashboard():
     return ok({
         "avg_mastery": "71%",
@@ -99,7 +99,7 @@ def teacher_dashboard():
     })
 
 
-@router.get("/api/v1/parent/dashboard")
+@router.get("/parent/dashboard")
 def parent_dashboard():
     return ok({
         "child_name": "Ashwini",
@@ -132,7 +132,7 @@ def parent_dashboard():
 
 # ─── Live Analytics ────────────────────────────────────────────────────────────
 
-@router.get("/api/v1/student/{student_id}/trend")
+@router.get("/student/{student_id}/trend")
 def get_trend(student_id: str, authorization: str | None = Header(default=None)):
     """
     Return mastery/confusion/risk trends for a student.
@@ -153,7 +153,7 @@ def get_trend(student_id: str, authorization: str | None = Header(default=None))
     return ok(get_student_trend(effective_id))
 
 
-@router.get("/api/v1/teacher/risk-students")
+@router.get("/teacher/risk-students")
 def risk_students(authorization: str | None = Header(default=None)):
     """
     Return flagged at-risk students.
@@ -173,17 +173,17 @@ def risk_students(authorization: str | None = Header(default=None)):
 
 # ─── Teacher Actions ──────────────────────────────────────────────────────────
 
-@router.post("/api/v1/teacher/send-parent-message")
+@router.post("/teacher/send-parent-message")
 def teacher_send_parent_message(payload: TeacherMessageRequest):
     return ok({"message": "Parent message sent (demo stub)", "student_id": payload.student_id})
 
 
-@router.post("/api/v1/teacher/assign-remedial")
+@router.post("/teacher/assign-remedial")
 def teacher_assign_remedial(payload: TeacherRemedialRequest):
     return ok({"message": "Remedial assigned (demo stub)", "student_id": payload.student_id, "topic": payload.topic})
 
 
-@router.get("/api/v1/teacher/export-report")
+@router.get("/teacher/export-report")
 def teacher_export_report():
     pdf_bytes = b"%PDF-1.4\n% Demo report\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF"
     return Response(
@@ -195,7 +195,7 @@ def teacher_export_report():
 
 # ─── Parent ───────────────────────────────────────────────────────────────────
 
-@router.post("/api/v1/parent/notify")
+@router.post("/parent/notify")
 def notify_parent(payload: ParentNotifyRequest):
     message = (
         f"Alert: Your child may need academic support.\n"

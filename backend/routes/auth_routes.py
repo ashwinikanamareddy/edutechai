@@ -8,7 +8,7 @@ from models.auth_models import RegisterRequest, LoginRequest
 from services.auth_service import register_user, login_user, get_me
 from utils.response import ok
 
-router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 @router.post("/register")

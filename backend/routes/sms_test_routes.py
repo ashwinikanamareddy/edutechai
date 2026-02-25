@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from services.sms_service import send_parent_sms
 
-router = APIRouter(prefix="/api/v1/sms", tags=["SMS Debug"])
+router = APIRouter(tags=["SMS Debug"])
 
 from services.sms_service import send_sms
 
