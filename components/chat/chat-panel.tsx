@@ -155,9 +155,7 @@ export function ChatPanel() {
                             <SelectItem value="Hindi">Hindi</SelectItem>
                             <SelectItem value="Telugu">Telugu</SelectItem>
                         </SelectContent>
-                    </Select>
                 </div>
-                <Badge variant="outline" className="text-[10px] font-normal">RAG Active</Badge>
             </div>
 
             {/* Message Area */}
@@ -272,20 +270,7 @@ export function ChatPanel() {
                             onKeyDown={handleKeyPress}
                             placeholder="Type your question..."
                             className="w-full min-h-[44px] max-h-32 resize-none rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            rows={1}
                         />
-                        <div className="absolute right-2 bottom-2 flex items-center gap-1">
-                            <label className="cursor-pointer hover:bg-muted p-1.5 rounded-lg transition-colors">
-                                <Paperclip className="h-4 w-4 text-muted-foreground" />
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    ref={fileInputRef}
-                                    onChange={handleFileUpload}
-                                    accept=".pdf,.txt,.png,.jpg,.jpeg"
-                                />
-                            </label>
-                        </div>
                     </div>
                     <Button
                         size="icon"

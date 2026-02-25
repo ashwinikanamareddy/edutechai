@@ -16,7 +16,6 @@ export type Message = {
 type ChatContextType = {
     messages: Message[]
     sendMessage: (text: string, language: string) => Promise<void>
-    uploadFile: (file: File) => Promise<void>
     isOpen: boolean
     setIsOpen: (open: boolean) => void
     isLoading: boolean
@@ -81,7 +80,7 @@ export function GlobalChatProvider({ children }: { children: ReactNode }) {
             const errorMsg: Message = {
                 id: "error",
                 role: "ai",
-                content: "Sorry, I encountered an error. Please check your connection.",
+                content: "I'm having trouble connecting to my brain. Please ensure your internet is active and the backend is running.",
                 timestamp: new Date(),
                 language,
             }
@@ -91,38 +90,6 @@ export function GlobalChatProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    const uploadFile = async (file: File) => {
-        setIsLoading(true)
-        const formData = new FormData()
-        formData.append("file", file)
-
-        try {
-            const resp = await api.post("/chat/upload", formData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            })
-
-            const systemMsg: Message = {
-                id: Math.random().toString(36).substr(2, 9),
-                role: "ai",
-                content: resp.data.message + " " + (resp.data.detail || ""),
-                timestamp: new Date(),
-                language: currentLanguage,
-            }
-            setMessages((prev) => [...prev, systemMsg])
-        } catch (error: any) {
-            console.error("Upload error:", error)
-            const errorMsg: Message = {
-                id: "upload-error",
-                role: "ai",
-                content: `Failed to upload file: ${error.message || "Unknown error"}`,
-                timestamp: new Date(),
-                language: currentLanguage,
-            }
-            setMessages((prev) => [...prev, errorMsg])
-        } finally {
-            setIsLoading(false)
-        }
-    }
 
     const clearChat = () => setMessages([])
 
@@ -139,7 +106,6 @@ export function GlobalChatProvider({ children }: { children: ReactNode }) {
                 setCurrentLanguage,
                 followUpQuestions,
                 suggestedActions,
-                uploadFile
             }}
         >
             {children}
